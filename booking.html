@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>活動詳情與預約 | 澳門世遺探索</title>
+  <script>
+  (function () {
+    try {
+      var t = localStorage.getItem('mh_theme');
+      if (!t) t = localStorage.getItem('mh_dark') === '1' ? 'dark' : 'light';
+      if (t === 'dark') document.documentElement.classList.add('dark');
+    } catch (e) {}
+  })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: {
+      'heritage-blue': '#1B3A5C', 'heritage-blue-light': '#2C5282',
+      'heritage-terracotta': '#C4623F', 'heritage-gold': '#D4A24C',
+      'heritage-bg': '#FAF7F2', 'heritage-border': '#E8E1D8'
+    } } } };
+  </script>
+  <script>
+    window.imgFallback = function (img) {
+      img.onerror = null;
+      img.src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500"><rect width="100%" height="100%" fill="#E8E1D8"/><text x="50%" y="50%" font-size="30" fill="#1B3A5C" text-anchor="middle" dy=".3em">澳門世遺</text></svg>'
+      );
+    };
+  </script>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @media print { header, footer, #bookingForm, #related, #myBookings, .no-print { display: none !important; } }
+    @media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body class="bg-heritage-bg text-[#1F2937] dark:bg-[#0F1720] dark:text-[#E5E7EB] min-h-screen pb-24 md:pb-0">
+  <header class="sticky top-0 z-40 bg-white/95 dark:bg-[#1A2530]/95 backdrop-blur border-b border-heritage-border dark:border-gray-700">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2">
+        <span class="w-9 h-9 rounded-xl bg-heritage-blue text-white grid place-items-center font-bold">澳</span>
+        <span class="font-bold text-heritage-blue dark:text-white" data-i18n="brand">澳門世遺探索</span>
+      </a>
+      <div class="flex items-center gap-1">
+        <div class="relative">
+          <button id="langToggle" class="h-11 px-3 grid place-items-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-bold flex items-center gap-1" aria-label="切換語言">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
+            <span data-lang-label>繁中</span>
+          </button>
+          <div id="langMenu" class="hidden absolute right-0 top-full mt-1 w-32 bg-white dark:bg-[#1A2530] border border-heritage-border dark:border-gray-700 rounded-xl shadow-lg overflow-hidden z-50">
+            <button data-lang="zh-TW" class="block w-full text-left px-4 py-2 text-sm hover:bg-heritage-blue/10">繁體中文</button>
+            <button data-lang="zh-CN" class="block w-full text-left px-4 py-2 text-sm hover:bg-heritage-blue/10">简体中文</button>
+            <button data-lang="en" class="block w-full text-left px-4 py-2 text-sm hover:bg-heritage-blue/10">English</button>
+          </div>
+        </div>
+        <button id="darkToggle" aria-label="切換深色模式" class="w-11 h-11 grid place-items-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700">
+          <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+        <button data-mh-account class="text-sm px-3 py-2 rounded-xl border border-heritage-border dark:border-gray-600 hover:bg-heritage-blue/10 flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          <span id="accountLabel" data-i18n="navAccount">登入 / 註冊</span>
+        </button>
+        <a href="index.html" class="text-sm px-4 py-2 rounded-xl border border-heritage-border dark:border-gray-600 hover:bg-heritage-blue/10" data-i18n="navBack">返回探索</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="max-w-6xl mx-auto px-4 py-6">
+    <section id="notFound" class="hidden text-center py-24">
+      <div class="text-6xl mb-4">🏛️</div>
+      <h1 class="text-2xl font-bold" data-i18n="notFoundTitle">找不到此活動</h1>
+      <p class="text-gray-500 mt-2" data-i18n="notFoundSub">可能連結有誤，或活動已下架。</p>
+      <a href="index.html" class="inline-block mt-6 px-6 py-3 rounded-xl bg-heritage-blue text-white" data-i18n="notFoundBack">回首頁探索</a>
+    </section>
+
+    <section id="detail" class="hidden">
+      <nav id="breadcrumb" class="text-sm text-gray-500 mb-4" aria-label="麵包屑">
+        <a href="index.html" class="hover:underline" data-i18n="breadcrumbHome">首頁</a> / <span id="bcCat"></span> / <span id="bcTitle" class="text-gray-700 dark:text-gray-200"></span>
+      </nav>
+
+      <!-- 活動詳情 Grid -->
+      <div id="activityGrid" class="grid lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-6">
+          <div class="bg-white dark:bg-[#1A2530] rounded-2xl border border-heritage-border dark:border-gray-700 overflow-hidden">
+            <div class="aspect-[16/10] bg-heritage-border/40">
+              <img id="mainImg" src="" alt="" onerror="imgFallback(this)" class="w-full h-full object-cover">
+            </div>
+            <div id="thumbs" class="flex gap-2 p-3 overflow-x-auto no-scrollbar"></div>
+          </div>
+          <div class="bg-white dark:bg-[#1A2530] rounded-2xl border border-heritage-border dark:border-gray-700 p-5">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <span id="dCat" class="text-xs px-2 py-0.5 rounded-full bg-heritage-blue/10 text-heritage-blue dark:text-white"></span>
+              <span id="dHot" class="hidden text-xs px-2 py-0.5 rounded-full bg-heritage-gold text-white" data-i18n="badgeHot">熱門</span>
+              <span id="dNew" class="hidden text-xs px-2 py-0.5 rounded-full bg-heritage-terracotta text-white" data-i18n="badgeNew">新上架</span>
+            </div>
+            <h1 id="dTitle" class="text-2xl md:text-3xl font-bold"></h1>
+            <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-gray-300">
+              <span>⭐ <span id="dRating"></span> (<span id="dReviews"></span>)</span>
+              <span id="dDistrict"></span>
+              <span id="dDuration"></span>
+              <span id="dLangs"></span>
+            </div>
+            <p class="mt-3 text-heritage-terracotta font-bold text-2xl"><span id="dPrice"></span> <span class="text-sm text-gray-400 line-through" id="dOrig"></span><span class="text-sm text-gray-500 font-normal" data-i18n="perPerson"> / 人</span></p>
+            <p class="mt-3 text-sm text-gray-600 dark:text-gray-300"><span data-i18n="meetingPoint">集合地點：</span><span id="dMeet"></span>
+              <a id="mapLink" href="#" target="_blank" rel="noopener" class="ml-2 text-heritage-blue dark:text-blue-300 hover:underline" data-i18n="openMap">在地圖開啟 ↗</a>
+            </p>
+          </div>
+          <div class="bg-white dark:bg-[#1A2530] rounded-2xl border border-heritage-border dark:border-gray-700 overflow-hidden">
+            <div class="flex border-b border-heritage-border dark:border-gray-700 overflow-x-auto no-scrollbar" role="tablist">
+              <button data-tab="intro" class="tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 border-heritage-blue text-heritage-blue" data-i18n="tabIntro">活動介紹</button>
+              <button data-tab="highlights" class="tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 border-transparent" data-i18n="tabHighlights">行程亮點</button>
+              <button data-tab="notes" class="tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 border-transparent" data-i18n="tabNotes">注意事項</button>
+              <button data-tab="reviews" class="tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 border-transparent" data-i18n="tabReviews">評價</button>
+            </div>
+            <div id="tab-intro" class="tab-panel p-5 text-sm leading-relaxed"></div>
+            <div id="tab-highlights" class="tab-panel p-5 text-sm leading-relaxed hidden"></div>
+            <div id="tab-notes" class="tab-panel p-5 text-sm leading-relaxed hidden"></div>
+            <div id="tab-reviews" class="tab-panel p-5 text-sm leading-relaxed hidden">
+              <div class="mb-6 p-4 rounded-xl border border-heritage-border dark:border-gray-700 bg-heritage-bg dark:bg-[#0F1720]">
+                <h3 class="font-bold mb-2" data-i18n="writeReview">✍️ 撰寫評價</h3>
+                <div id="starPicker" class="flex gap-1 text-2xl mb-2 select-none">
+                  <button type="button" data-star="1" class="text-gray-300 hover:text-heritage-gold transition">★</button>
+                  <button type="button" data-star="2" class="text-gray-300 hover:text-heritage-gold transition">★</button>
+                  <button type="button" data-star="3" class="text-gray-300 hover:text-heritage-gold transition">★</button>
+                  <button type="button" data-star="4" class="text-gray-300 hover:text-heritage-gold transition">★</button>
+                  <button type="button" data-star="5" class="text-gray-300 hover:text-heritage-gold transition">★</button>
+                </div>
+                <textarea id="reviewText" rows="3" maxlength="300" placeholder="分享你的體驗…" data-i18n-placeholder="reviewPlaceholder" class="w-full px-3 py-2 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#1A2530] text-base"></textarea>
+                <div class="flex justify-between items-center mt-2">
+                  <span class="text-xs text-gray-400"><span id="reviewCount">0</span>/300</span>
+                  <button id="reviewSubmit" class="px-5 py-2 rounded-xl bg-heritage-blue text-white text-sm" data-i18n="reviewSubmit">送出評價</button>
+                </div>
+                <p id="reviewErr" class="text-xs text-red-600 mt-1 hidden"></p>
+              </div>
+              <div id="reviewList"></div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="lg:col-span-1">
+          <form id="bookingForm" novalidate class="bg-white dark:bg-[#1A2530] rounded-2xl border border-heritage-border dark:border-gray-700 p-5 space-y-4 lg:sticky lg:top-24">
+            <h2 class="font-bold text-lg" data-i18n="bookTitle">預約此活動</h2>
+            <div>
+              <label class="block text-sm font-medium mb-1" for="name" data-i18n="formName">姓名 *</label>
+              <input id="name" name="name" required class="w-full px-3 py-2.5 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#0F1720] text-base focus:ring-2 focus:ring-heritage-blue focus:outline-none">
+              <p class="err text-xs text-red-600 mt-1 hidden"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1" for="phone" data-i18n="formPhone">手機（+853）*</label>
+              <input id="phone" name="phone" inputmode="tel" placeholder="61234567" required class="w-full px-3 py-2.5 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#0F1720] text-base focus:ring-2 focus:ring-heritage-blue focus:outline-none">
+              <p class="err text-xs text-red-600 mt-1 hidden"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1" for="email" data-i18n="formEmail">Email *</label>
+              <input id="email" name="email" type="email" required class="w-full px-3 py-2.5 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#0F1720] text-base focus:ring-2 focus:ring-heritage-blue focus:outline-none">
+              <p class="err text-xs text-red-600 mt-1 hidden"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1" for="date" data-i18n="formDate">參加日期 *</label>
+              <input id="date" name="date" type="date" required class="w-full px-3 py-2.5 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#0F1720] text-base focus:ring-2 focus:ring-heritage-blue focus:outline-none">
+              <p class="err text-xs text-red-600 mt-1 hidden"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1" for="session" data-i18n="formSession">場次時間 *</label>
+              <select id="session" name="session" required class="w-full px-3 py-2.5 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#0F1720] text-base"></select>
+              <p class="err text-xs text-red-600 mt-1 hidden"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1" data-i18n="formPeople">參加人數 *</label>
+              <div class="flex items-center gap-3">
+                <button type="button" id="minus" class="w-11 h-11 rounded-xl border border-heritage-border dark:border-gray-600 text-xl">−</button>
+                <input id="people" name="people" type="number" value="1" min="1" readonly class="w-16 text-center px-2 py-2 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#0F1720] text-base">
+                <button type="button" id="plus" class="w-11 h-11 rounded-xl border border-heritage-border dark:border-gray-600 text-xl">＋</button>
+                <span id="remainTip" class="text-xs text-gray-500"></span>
+              </div>
+              <p class="err text-xs text-red-600 mt-1 hidden"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1" data-i18n="formLang">導賞語言 *</label>
+              <div id="langRadios" class="flex flex-wrap gap-2"></div>
+              <p class="err text-xs text-red-600 mt-1 hidden"></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1" for="note" data-i18n="formNote">特殊需求</label>
+              <textarea id="note" name="note" rows="2" maxlength="200" class="w-full px-3 py-2.5 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#0F1720] text-base"></textarea>
+              <p class="text-xs text-gray-400 text-right"><span id="noteCount">0</span>/200</p>
+            </div>
+            <label class="flex items-start gap-2 text-sm">
+              <input id="agree" type="checkbox" required class="mt-1 w-4 h-4">
+              <span data-i18n="formAgree">我已閱讀並同意活動條款與個人資料使用政策 *</span>
+            </label>
+            <p id="agreeErr" class="err text-xs text-red-600 hidden"></p>
+            <div class="rounded-xl bg-heritage-bg dark:bg-[#0F1720] p-4 space-y-1 text-sm">
+              <div class="flex justify-between"><span data-i18n="sumSubtotal">小計</span><span id="sumSubtotal">MOP 0</span></div>
+              <div class="flex justify-between"><span data-i18n="sumDiscount">團體折扣</span><span id="sumDiscount">- MOP 0</span></div>
+              <div class="flex justify-between"><span data-i18n="sumFee">平台服務費</span><span id="sumFee">MOP 0</span></div>
+              <div class="flex justify-between font-bold text-heritage-terracotta text-base pt-2 border-t border-heritage-border dark:border-gray-700"><span data-i18n="sumTotal">總額</span><span id="sumTotal">MOP 0</span></div>
+            </div>
+            <button id="submitBtn" type="submit" class="w-full py-3.5 rounded-xl bg-heritage-terracotta text-white font-bold text-base hover:opacity-90 disabled:opacity-50" data-i18n="submitBtn">確認預約</button>
+          </form>
+        </aside>
+      </div>
+
+      <!-- 我的預約（獨立區塊） -->
+      <div id="myBookings" class="mt-12 bg-white dark:bg-[#1A2530] rounded-2xl border border-heritage-border dark:border-gray-700 p-6 md:p-8">
+        <h2 class="font-bold text-2xl mb-4 text-heritage-blue dark:text-white" data-i18n="myBookings">我的預約</h2>
+        <div id="bookingList" class="text-sm"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="mobileBar" class="fixed bottom-0 left-0 right-0 z-30 bg-white dark:bg-[#1A2530] border-t border-heritage-border dark:border-gray-700 p-3 md:hidden hidden">
+    <div class="flex items-center justify-between gap-3">
+      <div><span class="text-xs text-gray-500" data-i18n="sumTotal">總額</span><p id="mobileTotal" class="font-bold text-heritage-terracotta">MOP 0</p></div>
+      <button id="mobileSubmit" class="px-6 py-3 rounded-xl bg-heritage-terracotta text-white font-bold" data-i18n="bookNow">立即預約</button>
+    </div>
+  </div>
+
+  <div id="successModal" class="fixed inset-0 z-[60] hidden">
+    <div class="absolute inset-0 bg-black/50"></div>
+    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-md bg-white dark:bg-[#1A2530] rounded-2xl p-6 shadow-2xl">
+      <div class="text-center">
+        <div class="w-16 h-16 mx-auto rounded-full bg-green-100 text-green-700 grid place-items-center text-3xl">✓</div>
+        <h2 class="text-xl font-bold mt-3" data-i18n="bookSuccess">預約成功！</h2>
+        <p class="text-sm text-gray-500 mt-1"><span data-i18n="orderNo">訂單編號：</span><span id="orderNo" class="font-mono font-bold"></span></p>
+        <div id="successSummary" class="mt-4 text-left text-sm bg-heritage-bg dark:bg-[#0F1720] rounded-xl p-4 space-y-1"></div>
+        <div class="mt-5 flex gap-3">
+          <button id="printBtn" class="flex-1 py-2.5 rounded-xl border border-heritage-border dark:border-gray-600" data-i18n="printBtn">列印憑證</button>
+          <a href="index.html" class="flex-1 py-2.5 rounded-xl bg-heritage-blue text-white text-center" data-i18n="backExplore">返回探索</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/data.js"></script>
+  <script>
+  (function () {
+    var DATA = window.getSpots ? window.getSpots() : (window.HERITAGE_SPOTS || []);
+    var $ = function (s) { return document.querySelector(s); };
+    var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+    function t(key, vars) { return window.MH_I18N ? MH_I18N.t(key, vars) : key; }
+
+    var CAT_KEYS = {
+      '建築遺產': 'catArchitecture', '宗教場所': 'catReligious', '廣場前地': 'catSquare',
+      '博物館展館': 'catMuseum', '夜間導賞': 'catNight', '親子體驗': 'catFamily',
+      '手作工作坊': 'catWorkshop', '美食文化': 'catFood'
+    };
+    var LANG_KEYS = {
+      '粵語': 'langCantonese', '普通話': 'langMandarin',
+      '英語': 'langEnglish', '葡語': 'langPortuguese'
+    };
+    var DISTRICT_KEYS = { '澳門半島': 'districtMacau', '氹仔': 'districtTaipa', '路環': 'districtColoane' };
+    function tCat(c) { return t(CAT_KEYS[c] || c); }
+    function tLang(l) { return t(LANG_KEYS[l] || l); }
+    function tDistrict(d) { return t(DISTRICT_KEYS[d] || d); }
+
+    function escapeHTML(s) { return String(s).replace(/[&<>"']/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); }
+    function formatMOP(n) { return 'MOP ' + Number(n).toLocaleString('zh-MO'); }
+    function showToast(msg, type) {
+      var box = document.createElement('div');
+      box.className = 'fixed bottom-4 left-1/2 -translate-x-1/2 z-[80] px-4 py-3 rounded-xl shadow-lg text-white text-sm ' + (type === 'error' ? 'bg-red-600' : 'bg-heritage-blue');
+      box.textContent = msg; document.body.appendChild(box);
+      setTimeout(function () { box.remove(); }, 2200);
+    }
+
+    // ★ 檢查 view 模式
+    var urlParams = new URLSearchParams(location.search);
+    var viewMode = urlParams.get('view');
+    var isBookingsView = viewMode === 'bookings';
+
+    var id = urlParams.get('id');
+    if (!id && DATA.length > 0) { id = DATA[0].id; }
+    var spot = DATA.filter(function (i) { return i.id === id; })[0];
+    if (!spot) { $('#notFound').classList.remove('hidden'); return; }
+    $('#detail').classList.remove('hidden');
+    if (!isBookingsView) $('#mobileBar').classList.remove('hidden');
+
+    // ★ 如果是 bookings 模式，隱藏活動詳情
+    if (isBookingsView) {
+      var bc = document.getElementById('breadcrumb');
+      if (bc) bc.style.display = 'none';
+      var grid = document.getElementById('activityGrid');
+      if (grid) grid.style.display = 'none';
+      var mb = document.getElementById('mobileBar');
+      if (mb) mb.classList.add('hidden');
+      document.title = '我的預約 | 澳門世遺探索';
+    }
+
+    var currentStar = 0;
+    var SEED_REVIEWS = [
+      { userName: '陳小姐', rating: 5, comment: '導賞員講解生動，學到很多澳門歷史！', createdAt: '2025-01-10T10:00:00Z' },
+      { userName: '李先生', rating: 4, comment: '路線安排不錯，時間稍緊但很充實。', createdAt: '2025-02-05T14:30:00Z' },
+      { userName: 'Ana', rating: 5, comment: 'English guide was excellent. Highly recommended!', createdAt: '2025-02-20T09:15:00Z' }
+    ];
+
+    function renderSpot() {
+      $('#mainImg').src = spot.image; $('#mainImg').alt = spot.title;
+      $('#thumbs').innerHTML = spot.gallery.map(function (g, i) {
+        return '<button type="button" data-img="' + g + '" class="shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 ' + (i === 0 ? 'border-heritage-blue' : 'border-transparent') + '"><img src="' + g + '" alt="" onerror="imgFallback(this)" class="w-full h-full object-cover"></button>';
+      }).join('');
+      $('#bcCat').textContent = tCat(spot.category);
+      $('#bcTitle').textContent = spot.title;
+      $('#dCat').textContent = tCat(spot.category);
+      $('#dTitle').textContent = spot.title;
+      $('#dHot').classList.toggle('hidden', !spot.isHot);
+      $('#dNew').classList.toggle('hidden', !spot.isNew);
+      $('#dRating').textContent = spot.rating;
+      $('#dReviews').textContent = spot.reviewCount;
+      $('#dDistrict').textContent = tDistrict(spot.district);
+      $('#dDuration').textContent = spot.durationMins + ' ' + t('minutes');
+      $('#dLangs').textContent = spot.languages.map(tLang).join(' / ');
+      $('#dPrice').textContent = formatMOP(spot.price);
+      $('#dOrig').textContent = spot.originalPrice > spot.price ? formatMOP(spot.originalPrice) : '';
+      $('#dMeet').textContent = spot.meetingPoint;
+      $('#mapLink').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(spot.meetingPoint + ' 澳門');
+      $('#tab-intro').innerHTML = '<p>' + escapeHTML(spot.description) + '</p>';
+      $('#tab-highlights').innerHTML = '<ul class="list-disc pl-5 space-y-1">' + spot.highlights.map(function (h) { return '<li>' + escapeHTML(h) + '</li>'; }).join('') + '</ul>';
+      $('#tab-notes').innerHTML = '<ul class="list-disc pl-5 space-y-1">' + MH_I18N.tList('notesList').map(function (n) { return '<li>' + escapeHTML(n) + '</li>'; }).join('') + '</ul>';
+    }
+
+    function renderReviewList() {
+      var userReviews = MH.getReviews(spot.id);
+      var all = userReviews.concat(SEED_REVIEWS);
+      var el = document.getElementById('reviewList');
+      if (!el) return;
+      if (!all.length) { el.innerHTML = '<p class="text-gray-500">' + t('noReviews') + '</p>'; return; }
+      el.innerHTML = all.map(function (v) {
+        var name = v.userName || t('guest');
+        var dateStr = v.createdAt ? MH.formatDate(v.createdAt) : '';
+        return '<div class="border-b border-heritage-border dark:border-gray-700 py-3 last:border-0">' +
+          '<div class="flex justify-between"><strong>' + escapeHTML(name) + '</strong><span class="text-heritage-gold">' + '★'.repeat(v.rating) + '</span></div>' +
+          '<p class="text-gray-600 dark:text-gray-300 mt-1">' + escapeHTML(v.comment) + '</p>' +
+          (dateStr ? '<p class="text-xs text-gray-400 mt-1">' + dateStr + '</p>' : '') +
+          '</div>';
+      }).join('');
+    }
+
+    // ★ 推薦活動卡片（水平滾動 + 左右箭頭）
+    function renderRecommendCards() {
+      var hot = (DATA || []).filter(function (i) { return i.isHot; });
+      var others = (DATA || []).filter(function (i) { return !i.isHot; });
+      var rec = hot.concat(others).slice(0, 8);
+
+      var cardsHTML = rec.map(function (item) {
+        return '<a href="booking.html?id=' + item.id + '" class="snap-start shrink-0 w-64 bg-white dark:bg-[#1A2530] rounded-2xl border border-heritage-border dark:border-gray-700 overflow-hidden hover:shadow-lg transition">' +
+          '<div class="aspect-[16/10] bg-heritage-border/40"><img src="' + item.image + '" alt="" loading="lazy" onerror="imgFallback(this)" class="w-full h-full object-cover"></div>' +
+          '<div class="p-3"><h4 class="font-bold text-sm line-clamp-2">' + escapeHTML(item.title) + '</h4>' +
+          '<p class="text-xs text-heritage-terracotta mt-1">' + formatMOP(item.price) + ' ' + t('fromPrice') + '</p></div>' +
+          '</a>';
+      }).join('');
+
+      return '<div class="relative">' +
+        '<button type="button" id="recPrev" aria-label="上一個" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-11 h-11 rounded-full bg-white dark:bg-[#1A2530] border border-heritage-border dark:border-gray-700 shadow-lg grid place-items-center hover:bg-heritage-blue hover:text-white transition text-xl font-bold">‹</button>' +
+        '<div id="recScroller" class="flex gap-4 overflow-x-auto no-scrollbar pb-2 snap-x scroll-smooth px-1">' + cardsHTML + '</div>' +
+        '<button type="button" id="recNext" aria-label="下一個" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-11 h-11 rounded-full bg-white dark:bg-[#1A2530] border border-heritage-border dark:border-gray-700 shadow-lg grid place-items-center hover:bg-heritage-blue hover:text-white transition text-xl font-bold">›</button>' +
+        '</div>';
+    }
+
+    function renderBookings() {
+      var el = $('#bookingList');
+      if (!el) return;
+      var isGuest = !MH.getCurrentUser();
+      var arr = MH.getBookings();
+
+      // ==== 訪客 ====
+      if (isGuest) {
+        el.innerHTML =
+          '<div class="text-center py-12">' +
+          '  <div class="text-7xl mb-4">🔐</div>' +
+          '  <h3 class="text-2xl md:text-3xl font-bold text-heritage-blue dark:text-white mb-3">' + t('guestBookingsTitle') + '</h3>' +
+          '  <p class="text-gray-500 dark:text-gray-400 mb-6 text-base">' + t('guestBookingsSub') + '</p>' +
+          '  <button data-mh-account class="px-8 py-3 rounded-xl bg-heritage-blue text-white font-bold hover:opacity-90 text-base">' + t('loginOrRegister') + '</button>' +
+          '</div>' +
+          '<h3 class="mt-6 mb-4 text-xl md:text-2xl font-bold text-heritage-blue dark:text-white">' + t('recommendForYou') + '</h3>' +
+          renderRecommendCards();
+        return;
+      }
+
+      // ==== 已登入但無預約 ====
+      if (!arr.length) {
+        el.innerHTML =
+          '<div class="text-center py-12">' +
+          '  <div class="text-7xl mb-4">📭</div>' +
+          '  <h3 class="text-2xl md:text-3xl font-bold text-heritage-blue dark:text-white mb-3">' + t('noBookings') + '</h3>' +
+          '  <p class="text-gray-500 dark:text-gray-400 text-base">' + t('noBookingsSub') + '</p>' +
+          '</div>' +
+          '<h3 class="mt-6 mb-4 text-xl md:text-2xl font-bold text-heritage-blue dark:text-white">' + t('recommendForYou') + '</h3>' +
+          renderRecommendCards();
+        return;
+      }
+
+      // ==== 有預約 ====
+      el.innerHTML = arr.map(function (b) {
+        return '<div class="border border-heritage-border dark:border-gray-700 rounded-xl p-4 flex flex-wrap justify-between gap-3 mb-3">' +
+          '<div><p class="font-bold text-base">' + escapeHTML(b.spotTitle) + '</p>' +
+          '<p class="text-gray-500">' + b.date + ' ' + b.session + ' · ' + b.people + ' ' + t('peopleUnit') + '</p>' +
+          '<p class="font-mono text-xs text-gray-400">' + b.orderNo + '</p></div>' +
+          '<div class="text-right"><p class="text-heritage-terracotta font-bold text-lg">' + formatMOP(b.total) + '</p>' +
+          '<button data-cancel="' + b.orderNo + '" class="text-xs text-red-600 hover:underline">' + t('cancelBook') + '</button></div>' +
+          '</div>';
+      }).join('');
+    }
+
+    var form = $('#bookingForm'), peopleInput = $('#people'), sessionSel = $('#session');
+    var today = new Date().toISOString().slice(0, 10);
+    $('#date').min = today; $('#date').value = today;
+
+    // ★ 強制關閉瀏覽器原生驗證氣泡
+    if (form) {
+      form.setAttribute('novalidate', 'novalidate');
+      form.addEventListener('invalid', function (e) { e.preventDefault(); }, true);
+    }
+
+    function renderLangRadios() {
+      var prev = form.querySelector('input[name="lang"]:checked');
+      var prevVal = prev ? prev.value : null;
+      $('#langRadios').innerHTML = spot.languages.map(function (l, i) {
+        var checked = prevVal ? (l === prevVal) : (i === 0);
+        return '<label class="px-3 py-2 rounded-xl border border-heritage-border dark:border-gray-600 text-sm cursor-pointer"><input type="radio" name="lang" value="' + escapeHTML(l) + '" ' + (checked ? 'checked' : '') + ' class="mr-1">' + escapeHTML(tLang(l)) + '</label>';
+      }).join('');
+    }
+
+    function getSelectedSession() { var idx = sessionSel.value; return spot.sessions[idx] || null; }
+    function renderSessions() {
+      var prev = sessionSel.value;
+      sessionSel.innerHTML = spot.sessions.map(function (s, i) {
+        return '<option value="' + i + '" ' + (s.remaining <= 0 ? 'disabled' : '') + '>' + s.date + ' ' + s.time + ' (' + t('remainTip', { n: s.remaining }) + ')</option>';
+      }).join('');
+      if (prev !== '' && spot.sessions[prev]) sessionSel.value = prev;
+      else {
+        var first = spot.sessions.findIndex(function (s) { return s.remaining > 0; });
+        if (first > -1) sessionSel.value = first; else sessionSel.value = '';
+      }
+      updateSummary();
+    }
+    function updateSummary() {
+      var s = getSelectedSession();
+      var max = s ? s.remaining : 0;
+      var people = Math.max(1, Math.min(parseInt(peopleInput.value, 10) || 1, max || 1));
+      peopleInput.value = people;
+      $('#remainTip').textContent = s ? t('remainTip', { n: s.remaining }) : t('selectSession');
+      var subtotal = spot.price * people;
+      var discount = people >= 5 ? Math.round(subtotal * 0.1) : 0;
+      var fee = Math.round((subtotal - discount) * 0.05);
+      var total = subtotal - discount + fee;
+      $('#sumSubtotal').textContent = formatMOP(subtotal);
+      $('#sumDiscount').textContent = '- ' + formatMOP(discount);
+      $('#sumFee').textContent = formatMOP(fee);
+      $('#sumTotal').textContent = formatMOP(total);
+      $('#mobileTotal').textContent = formatMOP(total);
+      return { s: s, people: people, subtotal: subtotal, discount: discount, fee: fee, total: total };
+    }
+    function validate() {
+      var ok = true;
+      function setErr(id, msg) { var el = $('#' + id); var p = el ? el.parentElement.querySelector('.err') : null; if (p) { p.textContent = msg || ''; p.classList.toggle('hidden', !msg); } if (el) el.setAttribute('aria-invalid', msg ? 'true' : 'false'); if (msg) ok = false; }
+      setErr('name', $('#name').value.trim() ? '' : t('errName'));
+      var phone = $('#phone').value.replace(/\s/g, '');
+      setErr('phone', /^(\+?853)?\d{8}$/.test(phone) ? '' : t('errPhone'));
+      setErr('email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($('#email').value) ? '' : t('errEmail'));
+      var d = $('#date').value;
+      setErr('date', d && d >= today ? '' : t('errDate'));
+      var s = getSelectedSession();
+      setErr('session', s && s.remaining > 0 ? '' : t('errSession'));
+      var people = parseInt(peopleInput.value, 10);
+      setErr('people', s && people >= 1 && people <= s.remaining ? '' : t('errPeople'));
+      var lang = form.querySelector('input[name="lang"]:checked');
+      setErr('langRadios', lang ? '' : t('errLang'));
+      var agreeErr = $('#agreeErr');
+      if (!$('#agree').checked) { agreeErr.textContent = t('errAgree'); agreeErr.classList.remove('hidden'); ok = false; } else { agreeErr.classList.add('hidden'); }
+      return ok;
+    }
+    function bindCalc() {
+      ['#date', '#session', '#people'].forEach(function (sel) { var el = $(sel); if (el) el.addEventListener('change', updateSummary); if (el) el.addEventListener('input', updateSummary); });
+      $('#plus').addEventListener('click', function () { peopleInput.value = parseInt(peopleInput.value, 10) + 1; updateSummary(); });
+      $('#minus').addEventListener('click', function () { peopleInput.value = Math.max(1, parseInt(peopleInput.value, 10) - 1); updateSummary(); });
+      $('#note').addEventListener('input', function () { $('#noteCount').textContent = this.value.length; });
+    }
+
+    // ★ 訪客模式：隱藏表單，顯示登入提示
+    function applyGuestMode() {
+      if (isBookingsView) return;
+      var isGuest = !MH.getCurrentUser();
+      var form = document.getElementById('bookingForm');
+      var mobileBar = document.getElementById('mobileBar');
+      var guestHint = document.getElementById('guestBookHint');
+      var aside = document.querySelector('aside.lg\\:col-span-1');
+
+      if (isGuest) {
+        if (form) form.style.display = 'none';
+        if (mobileBar) mobileBar.classList.add('hidden');
+        if (aside && !guestHint) {
+          var hintHTML =
+            '<div id="guestBookHint" class="bg-white dark:bg-[#1A2530] rounded-2xl border border-heritage-border dark:border-gray-700 p-6 text-center lg:sticky lg:top-24">' +
+            '  <div class="text-5xl mb-4">🔐</div>' +
+            '  <h3 class="text-xl font-bold text-heritage-blue dark:text-white mb-2">' + t('signInToBook') + '</h3>' +
+            '  <p class="text-sm text-gray-500 mb-5">' + t('signInToBookSub') + '</p>' +
+            '  <button data-mh-account class="w-full py-3 rounded-xl bg-heritage-blue text-white font-bold hover:opacity-90">' + t('loginOrRegister') + '</button>' +
+            '</div>';
+          aside.insertAdjacentHTML('afterbegin', hintHTML);
+        }
+      } else {
+        if (form) form.style.display = '';
+        if (mobileBar && !isBookingsView) mobileBar.classList.remove('hidden');
+        if (guestHint) guestHint.remove();
+      }
+    }
+
+    // ==== 初始化 ====
+    renderSpot();
+    renderReviewList();
+    renderLangRadios();
+    renderSessions();
+    bindCalc();
+    renderBookings();
+    applyGuestMode();
+
+    // ★ 推薦活動左右箭頭
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('#recPrev')) {
+        var s = document.getElementById('recScroller');
+        if (s) s.scrollBy({ left: -280, behavior: 'smooth' });
+      }
+      if (e.target.closest('#recNext')) {
+        var s = document.getElementById('recScroller');
+        if (s) s.scrollBy({ left: 280, behavior: 'smooth' });
+      }
+    });
+
+    document.querySelectorAll('#starPicker [data-star]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        currentStar = parseInt(this.dataset.star, 10);
+        document.querySelectorAll('#starPicker [data-star]').forEach(function (b) {
+          var n = parseInt(b.dataset.star, 10);
+          b.classList.toggle('text-heritage-gold', n <= currentStar);
+          b.classList.toggle('text-gray-300', n > currentStar);
+        });
+      });
+      btn.addEventListener('mouseenter', function () {
+        var hover = parseInt(this.dataset.star, 10);
+        document.querySelectorAll('#starPicker [data-star]').forEach(function (b) {
+          var n = parseInt(b.dataset.star, 10);
+          b.classList.toggle('text-heritage-gold', n <= hover);
+          b.classList.toggle('text-gray-300', n > hover);
+        });
+      });
+      btn.addEventListener('mouseleave', function () {
+        document.querySelectorAll('#starPicker [data-star]').forEach(function (b) {
+          var n = parseInt(b.dataset.star, 10);
+          b.classList.toggle('text-heritage-gold', n <= currentStar);
+          b.classList.toggle('text-gray-300', n > currentStar);
+        });
+      });
+    });
+
+    document.getElementById('reviewText').addEventListener('input', function () {
+      document.getElementById('reviewCount').textContent = this.value.length;
+    });
+
+    document.getElementById('reviewSubmit').addEventListener('click', function () {
+      var comment = document.getElementById('reviewText').value;
+      var err = document.getElementById('reviewErr');
+      var res = MH.addReview(spot.id, currentStar, comment);
+      if (!res.ok) { err.textContent = res.msg; err.classList.remove('hidden'); return; }
+      err.classList.add('hidden');
+      currentStar = 0;
+      document.getElementById('reviewText').value = '';
+      document.getElementById('reviewCount').textContent = '0';
+      document.querySelectorAll('#starPicker [data-star]').forEach(function (b) { b.className = 'text-gray-300 hover:text-heritage-gold transition'; });
+      renderReviewList();
+      showToast(t('reviewSuccess'));
+    });
+
+    $('#thumbs').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-img]'); if (!b) return;
+      $('#mainImg').src = b.dataset.img;
+      $$('#thumbs button').forEach(function (x) { x.className = 'shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 border-transparent'; });
+      b.className = 'shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 border-heritage-blue';
+    });
+
+    $$('.tab-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        $$('.tab-btn').forEach(function (b) { b.className = 'tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 border-transparent'; });
+        this.className = 'tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 border-heritage-blue text-heritage-blue';
+        $$('.tab-panel').forEach(function (p) { p.classList.add('hidden'); });
+        var panel = $('#tab-' + this.dataset.tab); if (panel) panel.classList.remove('hidden');
+      });
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!validate()) {
+        var firstErr = form.querySelector('[aria-invalid="true"]');
+        if (firstErr) {
+          try { firstErr.focus(); firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (err) {}
+        }
+        return;
+      }
+      var btn = $('#submitBtn'); btn.disabled = true; btn.textContent = t('submitLoading');
+      setTimeout(function () {
+        var info = updateSummary();
+        if (!info.s || info.people > info.s.remaining) { showToast(t('errSession'), 'error'); btn.disabled = false; btn.textContent = t('submitBtn'); return; }
+        info.s.remaining -= info.people;
+        var orderNo = 'MH-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+        var booking = { orderNo: orderNo, spotId: spot.id, spotTitle: spot.title, name: $('#name').value.trim(), phone: $('#phone').value.trim(), email: $('#email').value.trim(), date: $('#date').value, session: info.s.date + ' ' + info.s.time, people: info.people, lang: form.querySelector('input[name="lang"]:checked').value, note: $('#note').value.trim(), total: info.total, status: 'confirmed', createdAt: new Date().toISOString() };
+        var res = MH.addBooking(booking);
+        if (!res.ok) { showToast(res.msg, 'error'); btn.disabled = false; btn.textContent = t('submitBtn'); return; }
+        renderBookings();
+        renderSessions();
+        $('#orderNo').textContent = orderNo;
+        $('#successSummary').innerHTML = '<p><strong>' + escapeHTML(spot.title) + '</strong></p><p>' + booking.date + ' ' + booking.session + '</p><p>' + booking.people + ' ' + t('peopleUnit') + ' · ' + booking.lang + '</p><p class="font-bold text-heritage-terracotta">' + t('sumTotal') + ' ' + formatMOP(booking.total) + '</p>';
+        $('#successModal').classList.remove('hidden');
+        btn.disabled = false; btn.textContent = t('submitBtn');
+        showToast(t('successToast'));
+      }, 600);
+    });
+    $('#printBtn').addEventListener('click', function () { window.print(); });
+    $('#mobileSubmit').addEventListener('click', function () { form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { cancelable: true })); });
+
+    // ★ 輸入時自動清除錯誤
+    function clearFieldError(el) {
+      if (!el) return;
+      var p = el.parentElement ? el.parentElement.querySelector('.err') : null;
+      if (p) { p.textContent = ''; p.classList.add('hidden'); }
+      el.removeAttribute('aria-invalid');
+    }
+    ['name', 'phone', 'email', 'date', 'session', 'people'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var evtName = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
+      el.addEventListener(evtName, function () { clearFieldError(el); });
+    });
+    var langContainer = document.getElementById('langRadios');
+    if (langContainer) {
+      langContainer.addEventListener('change', function (e) {
+        if (e.target.name === 'lang') {
+          var p = langContainer.parentElement.querySelector('.err');
+          if (p) { p.textContent = ''; p.classList.add('hidden'); }
+        }
+      });
+    }
+    var agreeEl = document.getElementById('agree');
+    if (agreeEl) {
+      agreeEl.addEventListener('change', function () {
+        var err = document.getElementById('agreeErr');
+        if (err) { err.textContent = ''; err.classList.add('hidden'); }
+      });
+    }
+
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-cancel]'); if (!b) return;
+      if (!confirm(t('cancelConfirm'))) return;
+      MH.cancelBooking(b.dataset.cancel);
+      renderBookings(); showToast(t('cancelDone'));
+    });
+    window.addEventListener('mh-auth-change', function () {
+      renderBookings();
+      applyGuestMode();
+    });
+    window.addEventListener('mh-bookings-change', renderBookings);
+
+    // 語言變更
+    window.addEventListener('mh-lang-change', function () {
+      try {
+        DATA = window.getSpots ? window.getSpots() : (window.HERITAGE_SPOTS || []);
+        var newSpot = DATA.filter(function (i) { return i.id === id; })[0];
+        if (newSpot) { spot = newSpot; }
+        MH_I18N.applyToDOM();
+        renderSpot();
+        renderReviewList();
+        renderLangRadios();
+        renderSessions();
+        renderBookings();
+      } catch (err) {
+        console.error('[booking] lang change error:', err);
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

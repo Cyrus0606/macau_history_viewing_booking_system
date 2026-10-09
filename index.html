@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>澳門歷史城區文化探索與活動預約平台</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('mh_theme');
+        if (!t) t = localStorage.getItem('mh_dark') === '1' ? 'dark' : 'light';
+        if (t === 'dark') document.documentElement.classList.add('dark');
+      } catch (e) { }
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'heritage-blue': '#1B3A5C', 'heritage-blue-light': '#2C5282',
+            'heritage-terracotta': '#C4623F', 'heritage-gold': '#D4A24C',
+            'heritage-bg': '#FAF7F2', 'heritage-border': '#E8E1D8'
+          }
+        }
+      }
+    };
+  </script>
+  <script>
+    window.imgFallback = function (img) {
+      img.onerror = null;
+      img.src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500"><rect width="100%" height="100%" fill="#E8E1D8"/><text x="50%" y="50%" font-size="30" fill="#1B3A5C" text-anchor="middle" dy=".3em">澳門世遺</text></svg>'
+      );
+    };
+  </script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+    }
+
+    mark {
+      background: #D4A24C66;
+      color: inherit;
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-heritage-bg text-[#1F2937] dark:bg-[#0F1720] dark:text-[#E5E7EB] min-h-screen">
+  <a href="#main"
+    class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-heritage-blue focus:text-white focus:px-4 focus:py-2 focus:rounded-lg">跳至主要內容</a>
+
+  <!-- 頂部導航 -->
+  <header
+    class="sticky top-0 z-40 bg-white/95 dark:bg-[#1A2530]/95 backdrop-blur border-b border-heritage-border dark:border-gray-700">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <a href="index.html" class="flex items-center gap-2 shrink-0">
+        <span class="w-9 h-9 rounded-xl bg-heritage-blue text-white grid place-items-center font-bold">澳</span>
+        <span class="font-bold text-heritage-blue dark:text-white leading-tight"><span data-i18n="brand">澳門世遺</span><br><span
+            class="text-xs font-normal text-gray-500 dark:text-gray-400" data-i18n="brandSub">文化探索與預約</span></span>
+      </a>
+      <nav class="hidden md:flex items-center gap-1 text-sm font-medium">
+        <a href="index.html" class="px-3 py-2 rounded-lg hover:bg-heritage-blue/10 text-heritage-blue dark:text-white" data-i18n="navExplore">探索活動</a>
+        <button id="favNavBtn" class="px-3 py-2 rounded-lg hover:bg-heritage-blue/10"><span data-i18n="navFav">我的收藏</span> <span id="favNavCount" class="ml-1 text-xs bg-heritage-gold text-white px-1.5 py-0.5 rounded-full">0</span></button>
+        <a href="booking.html?view=bookings" class="px-3 py-2 rounded-lg hover:bg-heritage-blue/10" data-i18n="navBookings">我的預約</a>
+        <button data-mh-account class="px-3 py-2 rounded-lg hover:bg-heritage-blue/10 flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          <span id="accountLabel" data-i18n="navAccount">登入 / 註冊</span>
+        </button>
+      </nav>
+      <div class="flex items-center gap-1">
+        <!-- 語言切換 -->
+        <div class="relative">
+          <button id="langToggle" class="h-11 px-3 grid place-items-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-bold flex items-center gap-1" aria-label="切換語言">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
+            <span data-lang-label>繁中</span>
+          </button>
+          <div id="langMenu" class="hidden absolute right-0 top-full mt-1 w-32 bg-white dark:bg-[#1A2530] border border-heritage-border dark:border-gray-700 rounded-xl shadow-lg overflow-hidden z-50">
+            <button data-lang="zh-TW" class="block w-full text-left px-4 py-2 text-sm hover:bg-heritage-blue/10">繁體中文</button>
+            <button data-lang="zh-CN" class="block w-full text-left px-4 py-2 text-sm hover:bg-heritage-blue/10">简体中文</button>
+            <button data-lang="en" class="block w-full text-left px-4 py-2 text-sm hover:bg-heritage-blue/10">English</button>
+          </div>
+        </div>
+        <!-- 深色模式 -->
+        <button id="darkToggle" aria-label="切換深色模式" class="w-11 h-11 grid place-items-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700">
+          <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+        <button id="menuBtn" aria-label="開啟選單" class="md:hidden w-11 h-11 grid place-items-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 手機抽屜 -->
+  <div id="mobileMenu" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/40" data-close-menu></div>
+    <aside class="absolute right-0 top-0 h-full w-72 bg-white dark:bg-[#1A2530] shadow-xl p-5 overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <span class="font-bold text-heritage-blue dark:text-white">選單</span>
+        <button data-close-menu
+          class="w-10 h-10 grid place-items-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+          aria-label="關閉選單">✕</button>
+      </div>
+      <nav class="space-y-2">
+        <a href="index.html" class="block px-4 py-3 rounded-xl hover:bg-heritage-blue/10" data-i18n="navExplore">探索活動</a>
+        <button id="favNavBtnMobile" class="w-full text-left px-4 py-3 rounded-xl hover:bg-heritage-blue/10"><span data-i18n="navFav">我的收藏</span> <span id="favNavCountMobile" class="text-xs bg-heritage-gold text-white px-1.5 py-0.5 rounded-full">0</span></button>
+        <a href="booking.html?view=bookings" class="block px-4 py-3 rounded-xl hover:bg-heritage-blue/10" data-i18n="navBookings">我的預約</a>
+        <button data-mh-account class="w-full text-left px-4 py-3 rounded-xl hover:bg-heritage-blue/10" id="accountBtnMobile">
+          <span id="accountLabelMobile" data-i18n="navAccountMobile">👤 登入 / 註冊</span>
+        </button>
+        <div class="pt-3 border-t border-heritage-border dark:border-gray-700 space-y-2">
+          <div class="flex items-center gap-2 px-4 py-2">
+            <span class="text-xs text-gray-500">語言 / Language</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 px-2">
+            <button data-lang="zh-TW" class="py-2 rounded-lg border border-heritage-border dark:border-gray-600 text-sm">繁中</button>
+            <button data-lang="zh-CN" class="py-2 rounded-lg border border-heritage-border dark:border-gray-600 text-sm">简中</button>
+            <button data-lang="en" class="py-2 rounded-lg border border-heritage-border dark:border-gray-600 text-sm">EN</button>
+          </div>
+          <button id="darkToggleMobile" class="w-full text-left px-4 py-3 rounded-xl hover:bg-heritage-blue/10 flex items-center justify-between">
+            <span>🌓 <span data-i18n="darkModeLabel">深色模式</span></span>
+            <span id="darkStateMobile">OFF</span>
+          </button>
+        </div>
+      </nav>
+    </aside>
+  </div>
+
+  <main id="main">
+    <!-- Hero -->
+    <section class="bg-gradient-to-br from-heritage-blue to-heritage-blue-light text-white">
+      <div class="max-w-7xl mx-auto px-4 py-12 md:py-16">
+        <h1 class="text-3xl md:text-5xl font-bold leading-tight"><span data-i18n="heroTitle1">探索澳門歷史城區</span><br><span
+            class="text-heritage-gold" data-i18n="heroTitle2">預約你的文化導賞</span></h1>
+        <p class="mt-4 text-white/80 max-w-2xl" data-i18n="heroSub">走進世遺景點、手作工作坊與美食文化體驗，用手機輕鬆瀏覽、即時檢索、收藏與預約。</p>
+        <div class="mt-6 max-w-2xl relative">
+          <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input id="searchInput" type="search" placeholder="搜尋景點、活動、地區或標籤…" data-i18n-placeholder="searchPlaceholder"
+            class="w-full pl-12 pr-4 py-4 rounded-2xl text-gray-900 text-base shadow-lg focus:outline-none focus:ring-4 focus:ring-heritage-gold/50">
+        </div>
+        <div class="mt-3 flex flex-wrap gap-2 text-sm">
+          <span class="text-white/60" data-i18n="hotLabel">熱門：</span>
+          <button class="hot-key px-3 py-1 rounded-full bg-white/15 hover:bg-white/25" data-q="大三巴" data-i18n="hot1">大三巴</button>
+          <button class="hot-key px-3 py-1 rounded-full bg-white/15 hover:bg-white/25" data-q="夜間" data-i18n="hot2">夜間導賞</button>
+          <button class="hot-key px-3 py-1 rounded-full bg-white/15 hover:bg-white/25" data-q="親子" data-i18n="hot3">親子</button>
+          <button class="hot-key px-3 py-1 rounded-full bg-white/15 hover:bg-white/25" data-q="手作" data-i18n="hot4">手作</button>
+          <button class="hot-key px-3 py-1 rounded-full bg-white/15 hover:bg-white/25" data-q="美食" data-i18n="hot5">美食</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 工具列 -->
+    <section class="max-w-7xl mx-auto px-4 py-6">
+      <div class="flex flex-wrap items-center gap-3 justify-between">
+        <p id="resultCount" class="text-sm text-gray-600 dark:text-gray-300" aria-live="polite">找到 0 個活動</p>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="favTab"
+            class="px-4 py-2 rounded-xl border border-heritage-border dark:border-gray-600 text-sm hover:bg-heritage-gold/10"><span data-i18n="favOnly">只看收藏</span>
+            <span id="favTabCount"
+              class="text-xs bg-heritage-gold text-white px-1.5 py-0.5 rounded-full">0</span></button>
+          <select id="sortSelect"
+            class="px-3 py-2 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#1A2530] text-sm">
+            <option value="recommend" data-i18n="sortRecommend">推薦排序</option>
+            <option value="priceAsc" data-i18n="sortPriceAsc">價格低到高</option>
+            <option value="priceDesc" data-i18n="sortPriceDesc">價格高到低</option>
+            <option value="ratingDesc" data-i18n="sortRatingDesc">評分最高</option>
+            <option value="durationAsc" data-i18n="sortDurationAsc">時長最短</option>
+            <option value="newest" data-i18n="sortNewest">最新上架</option>
+          </select>
+          <div class="hidden sm:flex rounded-xl border border-heritage-border dark:border-gray-600 overflow-hidden">
+            <button id="viewGrid" class="px-3 py-2 text-sm bg-heritage-blue text-white" aria-label="格狀檢視">▦</button>
+            <button id="viewList" class="px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+              aria-label="清單檢視">☰</button>
+          </div>
+          <button id="filterBtn" class="md:hidden px-4 py-2 rounded-xl bg-heritage-blue text-white text-sm" data-i18n="filterTitle">篩選</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto px-4 pb-16 flex gap-6">
+      <!-- 桌面篩選側欄 -->
+      <aside id="filterSidebar" class="hidden md:block w-72 shrink-0">
+        <div
+          class="sticky top-24 bg-white dark:bg-[#1A2530] rounded-2xl border border-heritage-border dark:border-gray-700 p-5 space-y-5">
+          <div class="flex items-center justify-between">
+            <h2 class="font-bold text-heritage-blue dark:text-white" data-i18n="filterTitle">篩選</h2>
+            <button id="clearFilters" class="text-sm text-heritage-terracotta hover:underline" data-i18n="filterClear">清除</button>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold mb-2" data-i18n="filterCategory">分類</h3>
+            <div id="categoryChips" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold mb-2" data-i18n="filterDistrict">地區</h3>
+            <select id="districtFilter"
+              class="w-full px-3 py-2 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#1A2530]">
+              <option value="" data-i18n="districtAll">全部地區</option>
+              <option value="澳門半島" data-i18n="districtMacau">澳門半島</option>
+              <option value="氹仔" data-i18n="districtTaipa">氹仔</option>
+              <option value="路環" data-i18n="districtColoane">路環</option>
+            </select>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold mb-2" data-i18n="filterPrice">價格</h3>
+            <select id="priceFilter"
+              class="w-full px-3 py-2 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#1A2530]">
+              <option value="" data-i18n="priceAll">全部價格</option>
+              <option value="free" data-i18n="priceFree">免費</option>
+              <option value="0-100">MOP 0-100</option>
+              <option value="100-300">MOP 100-300</option>
+              <option value="300+">MOP 300+</option>
+            </select>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold mb-2" data-i18n="filterDate">日期／場次</h3>
+            <select id="dateFilter"
+              class="w-full px-3 py-2 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#1A2530]">
+              <option value="" data-i18n="dateAll">全部日期</option>
+              <option value="7days" data-i18n="date7days">未來 7 天</option>
+              <option value="weekend" data-i18n="dateWeekend">週末</option>
+              <option value="today" data-i18n="dateToday">今日</option>
+            </select>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold mb-2" data-i18n="filterLang">導賞語言</h3>
+            <div id="languageChips" class="flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 列表區 -->
+      <section class="flex-1 min-w-0">
+        <div id="spotList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        <nav id="pagination" class="mt-8 flex flex-wrap justify-center items-center gap-2" aria-label="分頁"></nav>
+        <div id="emptyState" class="hidden text-center py-16">
+          <div class="text-5xl mb-4">🔍</div>
+          <h3 class="text-lg font-bold" data-i18n="noResult">沒有找到符合的活動</h3>
+          <p class="text-gray-500 mt-1" data-i18n="noResultSub">試試其他關鍵字，或清除篩選條件。</p>
+          <button id="emptyClear" class="mt-4 px-5 py-2 rounded-xl bg-heritage-blue text-white" data-i18n="emptyClear">清除全部條件</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- 本週精選 -->
+    <section class="max-w-7xl mx-auto px-4 pb-16">
+      <h2 class="text-xl font-bold text-heritage-blue dark:text-white mb-4" data-i18n="featured">本週精選</h2>
+      <div id="featuredList" class="flex gap-4 overflow-x-auto no-scrollbar pb-2 snap-x"></div>
+    </section>
+
+    <!-- 文化小知識 -->
+    <section class="bg-white dark:bg-[#1A2530] border-y border-heritage-border dark:border-gray-700">
+      <div class="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-3 gap-6">
+        <div class="md:col-span-1">
+          <h2 class="text-xl font-bold text-heritage-blue dark:text-white" data-i18n="tips">參觀小知識</h2>
+          <p class="text-sm text-gray-500 mt-2" data-i18n="tipsSub">尊重文化遺產，讓旅程更美好。</p>
+        </div>
+        <div class="md:col-span-2 grid sm:grid-cols-2 gap-4 text-sm">
+          <div class="p-4 rounded-xl bg-heritage-bg dark:bg-[#0F1720]"><strong data-i18n="tip1t">📸 拍照禮儀</strong>
+            <p class="mt-1 text-gray-600 dark:text-gray-300" data-i18n="tip1d">教堂內請勿使用閃光燈，保持安靜。</p>
+          </div>
+          <div class="p-4 rounded-xl bg-heritage-bg dark:bg-[#0F1720]"><strong data-i18n="tip2t">👟 穿著建議</strong>
+            <p class="mt-1 text-gray-600 dark:text-gray-300" data-i18n="tip2d">舊城區多石板路，建議穿舒適平底鞋。</p>
+          </div>
+          <div class="p-4 rounded-xl bg-heritage-bg dark:bg-[#0F1720]"><strong data-i18n="tip3t">🌦 天氣提醒</strong>
+            <p class="mt-1 text-gray-600 dark:text-gray-300" data-i18n="tip3d">夏季炎熱多雨，請帶水與雨具。</p>
+          </div>
+          <div class="p-4 rounded-xl bg-heritage-bg dark:bg-[#0F1720]"><strong data-i18n="tip4t">🗣 導賞語言</strong>
+            <p class="mt-1 text-gray-600 dark:text-gray-300" data-i18n="tip4d">預約時可選擇粵語、普通話、英語或葡語。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-heritage-blue text-white/80">
+    <div class="max-w-7xl mx-auto px-4 py-10 grid sm:grid-cols-2 md:grid-cols-4 gap-6 text-sm">
+      <div>
+        <h3 class="text-white font-bold mb-2" data-i18n="brand">澳門世遺探索</h3>
+        <p data-i18n="footerAbout">推廣澳門歷史城區文化，提供導賞與活動預約。</p>
+      </div>
+      <div>
+        <h3 class="text-white font-bold mb-2" data-i18n="footerLinks">快速連結</h3><a href="index.html" class="block hover:text-white" data-i18n="navExplore">探索活動</a><a
+          href="booking.html" class="block hover:text-white" data-i18n="navBookings">我的預約</a>
+      </div>
+      <div>
+        <h3 class="text-white font-bold mb-2" data-i18n="footerContact">聯絡我們</h3>
+        <p>info@macauheritage.mo</p>
+        <p>+853 1234 5678</p>
+      </div>
+      <div>
+        <h3 class="text-white font-bold mb-2" data-i18n="footerLang">語言</h3>
+        <p>繁體中文 / English / 葡文</p>
+      </div>
+    </div>
+    <div class="border-t border-white/10 text-center py-4 text-xs" data-i18n="footerCopy">© 2025 澳門歷史城區文化探索與活動預約平台</div>
+  </footer>
+
+  <button id="backTop"
+    class="fixed bottom-20 right-4 z-30 w-11 h-11 rounded-full bg-heritage-terracotta text-white shadow-lg hidden"
+    aria-label="返回頂部">↑</button>
+  <div id="toastBox" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] space-y-2 w-[90%] max-w-sm"></div>
+
+  <!-- 手機篩選 Drawer -->
+  <div id="filterDrawer" class="fixed inset-0 z-[55] hidden md:hidden">
+    <div class="absolute inset-0 bg-black/40" data-close-filter></div>
+    <aside
+      class="absolute left-0 right-0 bottom-0 max-h-[85vh] overflow-y-auto bg-white dark:bg-[#1A2530] rounded-t-3xl shadow-2xl p-5 space-y-5">
+      <div class="flex items-center justify-between sticky top-0 bg-white dark:bg-[#1A2530] pb-3 -mt-1 z-10">
+        <h2 class="font-bold text-heritage-blue dark:text-white text-lg" data-i18n="filterTitle">篩選條件</h2>
+        <button data-close-filter
+          class="w-10 h-10 grid place-items-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+          aria-label="關閉">✕</button>
+      </div>
+      <div>
+        <h3 class="text-sm font-semibold mb-2" data-i18n="filterCategory">分類</h3>
+        <div id="categoryChipsMobile" class="flex flex-wrap gap-2"></div>
+      </div>
+      <div>
+        <h3 class="text-sm font-semibold mb-2" data-i18n="filterDistrict">地區</h3>
+        <select id="districtFilterMobile"
+          class="w-full px-3 py-2 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#1A2530]">
+          <option value="" data-i18n="districtAll">全部地區</option>
+          <option value="澳門半島" data-i18n="districtMacau">澳門半島</option>
+          <option value="氹仔" data-i18n="districtTaipa">氹仔</option>
+          <option value="路環" data-i18n="districtColoane">路環</option>
+        </select>
+      </div>
+      <div>
+        <h3 class="text-sm font-semibold mb-2" data-i18n="filterPrice">價格</h3>
+        <select id="priceFilterMobile"
+          class="w-full px-3 py-2 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#1A2530]">
+          <option value="" data-i18n="priceAll">全部價格</option>
+          <option value="free" data-i18n="priceFree">免費</option>
+          <option value="0-100">MOP 0-100</option>
+          <option value="100-300">MOP 100-300</option>
+          <option value="300+">MOP 300+</option>
+        </select>
+      </div>
+      <div>
+        <h3 class="text-sm font-semibold mb-2" data-i18n="filterDate">日期／場次</h3>
+        <select id="dateFilterMobile"
+          class="w-full px-3 py-2 rounded-xl border border-heritage-border dark:border-gray-600 bg-white dark:bg-[#1A2530]">
+          <option value="" data-i18n="dateAll">全部日期</option>
+          <option value="7days" data-i18n="date7days">未來 7 天</option>
+          <option value="weekend" data-i18n="dateWeekend">週末</option>
+          <option value="today" data-i18n="dateToday">今日</option>
+        </select>
+      </div>
+      <div>
+        <h3 class="text-sm font-semibold mb-2" data-i18n="filterLang">導賞語言</h3>
+        <div id="languageChipsMobile" class="flex flex-wrap gap-2"></div>
+      </div>
+      <div class="flex gap-3 pt-2 sticky bottom-0 bg-white dark:bg-[#1A2530] py-3 z-10">
+        <button id="mobileClearFilters"
+          class="flex-1 py-3 rounded-xl border border-heritage-border dark:border-gray-600 text-sm" data-i18n="clearAll">清除全部</button>
+        <button id="mobileApplyFilters"
+          class="flex-1 py-3 rounded-xl bg-heritage-blue text-white text-sm font-bold">套用篩選</button>
+      </div>
+    </aside>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/data.js"></script>
+  <script>
+    (function () {
+      // ★★★ 修復 1：改用 getSpots() 即時取得當前語言資料 ★★★
+      var DATA = window.getSpots ? window.getSpots() : (window.HERITAGE_SPOTS || []);
+      var $ = function (s) { return document.querySelector(s); };
+      var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+      var state = { q: '', categories: [], district: '', price: '', date: '', languages: [], sort: 'recommend', page: 1, perPage: 6, onlyFav: false, view: 'grid', favs: new Set() };
+      var CATS = ['建築遺產', '宗教場所', '廣場前地', '博物館展館', '夜間導賞', '親子體驗', '手作工作坊', '美食文化'];
+      var LANGS = ['粵語', '普通話', '英語', '葡語'];
+      var CAT_KEYS = { '建築遺產': 'catArchitecture', '宗教場所': 'catReligious', '廣場前地': 'catSquare', '博物館展館': 'catMuseum', '夜間導賞': 'catNight', '親子體驗': 'catFamily', '手作工作坊': 'catWorkshop', '美食文化': 'catFood' };
+      var LANG_KEYS = { '粵語': 'langCantonese', '普通話': 'langMandarin', '英語': 'langEnglish', '葡語': 'langPortuguese' };
+      // ★ 新增：地區翻譯對照表
+      var DISTRICT_KEYS = { '澳門半島': 'districtMacau', '氹仔': 'districtTaipa', '路環': 'districtColoane' };
+
+      function t(key, vars) { return window.MH_I18N ? MH_I18N.t(key, vars) : key; }
+      function tCat(c) { return t(CAT_KEYS[c] || c); }
+      function tLang(l) { return t(LANG_KEYS[l] || l); }
+      function tDistrict(d) { return t(DISTRICT_KEYS[d] || d); }   // ★ 新增
+
+      function escapeHTML(s) { return String(s).replace(/[&<>"']/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); }
+      function debounce(fn, wait) { var t; return function () { var a = arguments, c = this; clearTimeout(t); t = setTimeout(function () { fn.apply(c, a); }, wait); }; }
+      function formatMOP(n) { return 'MOP ' + Number(n).toLocaleString('zh-MO'); }
+      function highlight(text, q) {
+        var esc = escapeHTML(text);
+        if (!q) return esc;
+        var qe = escapeHTML(q).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return esc.replace(new RegExp('(' + qe + ')', 'gi'), '<mark>$1</mark>');
+      }
+      function getFavs() { try { return new Set(JSON.parse(localStorage.getItem('mh_favs') || '[]')); } catch (e) { return new Set(); } }
+      function saveFavs() { try { localStorage.setItem('mh_favs', JSON.stringify(Array.from(state.favs))); } catch (e) { } }
+      function showToast(msg, type) {
+        var box = $('#toastBox'); if (!box) return;
+        var el = document.createElement('div');
+        el.className = 'px-4 py-3 rounded-xl shadow-lg text-white text-sm ' + (type === 'error' ? 'bg-red-600' : type === 'warn' ? 'bg-heritage-terracotta' : 'bg-heritage-blue');
+        el.textContent = msg; box.appendChild(el);
+        setTimeout(function () { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(function () { el.remove(); }, 300); }, 2200);
+      }
+      function sessionHasDate(spot, mode) {
+        if (!mode) return true;
+        var today = new Date(); today.setHours(0, 0, 0, 0);
+        return spot.sessions.some(function (s) {
+          var d = new Date(s.date + 'T00:00:00');
+          if (mode === 'today') return d.getTime() === today.getTime();
+          if (mode === '7days') { var end = new Date(today); end.setDate(end.getDate() + 7); return d >= today && d <= end; }
+          if (mode === 'weekend') { var day = d.getDay(); return day === 0 || day === 6; }
+          return true;
+        });
+      }
+      function getFiltered() {
+        var q = state.q.trim().toLowerCase();
+        var list = DATA.filter(function (item) {
+          if (q && !(item.title + item.district + item.tags.join(' ') + item.shortDesc).toLowerCase().includes(q)) return false;
+          if (state.categories.length && state.categories.indexOf(item.category) === -1) return false;
+          if (state.district && item.district !== state.district) return false;
+          if (state.price) {
+            if (state.price === 'free' && item.price !== 0) return false;
+            if (state.price === '0-100' && !(item.price >= 0 && item.price <= 100)) return false;
+            if (state.price === '100-300' && !(item.price > 100 && item.price <= 300)) return false;
+            if (state.price === '300+' && !(item.price > 300)) return false;
+          }
+          if (state.languages.length && !state.languages.some(function (l) { return item.languages.indexOf(l) > -1; })) return false;
+          if (state.date && !sessionHasDate(item, state.date)) return false;
+          if (state.onlyFav && !state.favs.has(item.id)) return false;
+          return true;
+        });
+        var sort = state.sort;
+        list.sort(function (a, b) {
+          if (sort === 'priceAsc') return a.price - b.price;
+          if (sort === 'priceDesc') return b.price - a.price;
+          if (sort === 'ratingDesc') return b.rating - a.rating;
+          if (sort === 'durationAsc') return a.durationMins - b.durationMins;
+          if (sort === 'newest') return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
+          return (b.isHot ? 1 : 0) - (a.isHot ? 1 : 0) || b.rating - a.rating;
+        });
+        return list;
+      }
+      function updateURL() {
+        var p = new URLSearchParams();
+        if (state.q) p.set('q', state.q);
+        if (state.categories.length) p.set('cat', state.categories.join(','));
+        if (state.sort !== 'recommend') p.set('sort', state.sort);
+        if (state.page > 1) p.set('page', state.page);
+        try { history.replaceState(null, '', location.pathname + (p.toString() ? '?' + p.toString() : '')); } catch (e) { }
+      }
+      function updateFavCount() {
+        var n = state.favs.size;
+        ['#favNavCount', '#favNavCountMobile', '#favTabCount'].forEach(function (sel) { var el = $(sel); if (el) el.textContent = n; });
+      }
+
+      function renderChips(container, items, selected, type) {
+        if (!container) return;
+        container.innerHTML = items.map(function (item) {
+          var on = selected.indexOf(item) > -1;
+          var label = type === 'category' ? tCat(item) : (type === 'language' ? tLang(item) : item);
+          return '<button type="button" data-chip-type="' + type + '" data-chip-value="' + escapeHTML(item) + '" class="px-3 py-1.5 rounded-full text-sm border transition ' + (on ? 'bg-heritage-blue text-white border-heritage-blue' : 'bg-white dark:bg-[#1A2530] border-heritage-border dark:border-gray-600 hover:border-heritage-blue') + '">' + escapeHTML(label) + '</button>';
+        }).join('');
+      }
+
+      function render() {
+        var list = getFiltered();
+        var total = list.length;
+        var totalPages = Math.max(1, Math.ceil(total / state.perPage));
+        if (state.page > totalPages) state.page = totalPages;
+        var start = (state.page - 1) * state.perPage;
+        var pageItems = list.slice(start, start + state.perPage);
+        var listEl = $('#spotList');
+        var emptyEl = $('#emptyState');
+        if (!listEl) return;
+        if (!total) { listEl.innerHTML = ''; if (emptyEl) emptyEl.classList.remove('hidden'); }
+        else { if (emptyEl) emptyEl.classList.add('hidden'); }
+        var isList = state.view === 'list';
+        listEl.className = isList ? 'space-y-4' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5';
+        listEl.innerHTML = pageItems.map(function (item) {
+          var fav = state.favs.has(item.id);
+          var remaining = item.sessions[0] ? item.sessions[0].remaining : 0;
+          var low = remaining < 5;
+          var img = '<img src="' + item.image + '" alt="' + escapeHTML(item.title) + '" loading="lazy" onerror="imgFallback(this)" class="w-full h-full object-cover" width="800" height="500">';
+          if (isList) {
+            return '<article class="bg-white dark:bg-[#1A2530] rounded-2xl border border-heritage-border dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-lg transition flex flex-col sm:flex-row">' +
+              '<div class="sm:w-56 h-48 sm:h-auto shrink-0 bg-heritage-border/40 aspect-[16/10] sm:aspect-auto">' + img + '</div>' +
+              '<div class="p-4 flex-1 flex flex-col">' +
+              '<div class="flex justify-between gap-2"><span class="text-xs px-2 py-0.5 rounded-full bg-heritage-blue/10 text-heritage-blue dark:text-white">' + escapeHTML(tCat(item.category)) + '</span>' +
+              '<button data-fav="' + item.id + '" class="w-9 h-9 grid place-items-center rounded-full ' + (fav ? 'text-red-500' : 'text-gray-400') + ' hover:bg-red-50" aria-label="收藏">' + (fav ? '❤' : '♡') + '</button></div>' +
+              '<h3 class="mt-2 font-bold text-lg">' + highlight(item.title, state.q) + '</h3>' +
+              '<p class="text-sm text-gray-500 dark:text-gray-300 mt-1 line-clamp-2">' + highlight(item.shortDesc, state.q) + '</p>' +
+              '<div class="mt-2 text-sm text-gray-500 dark:text-gray-300">' + escapeHTML(tDistrict(item.district)) + ' · ' + item.durationMins + ' ' + t('minutes') + ' · ' + escapeHTML(item.languages.map(tLang).join('/')) + '</div>' +
+              '<div class="mt-auto pt-3 flex items-center justify-between"><div><span class="text-heritage-terracotta font-bold">' + formatMOP(item.price) + '</span>' + (item.originalPrice > item.price ? ' <span class="text-xs text-gray-400 line-through">' + formatMOP(item.originalPrice) + '</span>' : '') + '</div>' +
+              '<a href="booking.html?id=' + item.id + '" class="px-4 py-2 rounded-xl bg-heritage-blue text-white text-sm">' + t('viewDetail') + '</a></div>' +
+              (low ? '<p class="text-xs text-red-600 mt-2">' + t('lowStock', { n: remaining }) + '</p>' : '') + '</div></article>';
+          }
+          return '<article class="bg-white dark:bg-[#1A2530] rounded-2xl border border-heritage-border dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-lg transition hover:-translate-y-0.5 flex flex-col">' +
+            '<div class="relative aspect-[16/10] bg-heritage-border/40">' + img +
+            '<div class="absolute top-2 left-2 flex gap-1"><span class="text-xs px-2 py-0.5 rounded-full bg-white/90 text-heritage-blue">' + escapeHTML(tCat(item.category)) + '</span>' + (item.isHot ? '<span class="text-xs px-2 py-0.5 rounded-full bg-heritage-gold text-white">' + t('badgeHot') + '</span>' : '') + (item.isNew ? '<span class="text-xs px-2 py-0.5 rounded-full bg-heritage-terracotta text-white">' + t('badgeNew') + '</span>' : '') + '</div>' +
+            '<button data-fav="' + item.id + '" class="absolute top-2 right-2 w-10 h-10 grid place-items-center rounded-full bg-white/90 ' + (fav ? 'text-red-500' : 'text-gray-400') + ' hover:scale-110 transition" aria-label="收藏">' + (fav ? '❤' : '♡') + '</button></div>' +
+            '<div class="p-4 flex flex-col flex-1">' +
+            '<h3 class="font-bold text-lg leading-snug">' + highlight(item.title, state.q) + '</h3>' +
+            '<p class="text-sm text-gray-500 dark:text-gray-300 mt-1 line-clamp-2">' + highlight(item.shortDesc, state.q) + '</p>' +
+            '<div class="mt-2 text-sm text-gray-500 dark:text-gray-300 flex flex-wrap gap-x-2"><span>⭐ ' + item.rating + ' (' + item.reviewCount + ')</span><span>' + escapeHTML(tDistrict(item.district)) + '</span><span>' + item.durationMins + ' ' + t('minutes') + '</span></div>' +
+            '<div class="mt-2 text-xs text-gray-400">' + escapeHTML(item.languages.map(tLang).join(' / ')) + '</div>' +
+            '<div class="mt-auto pt-3 flex items-center justify-between">' +
+            '<div><span class="text-heritage-terracotta font-bold text-lg">' + formatMOP(item.price) + '</span>' + (item.originalPrice > item.price ? ' <span class="text-xs text-gray-400 line-through">' + formatMOP(item.originalPrice) + '</span>' : '') + '</div>' +
+            '<a href="booking.html?id=' + item.id + '" class="px-3 py-2 rounded-xl bg-heritage-blue text-white text-sm">' + t('bookNow') + '</a></div>' +
+            (low ? '<p class="text-xs text-red-600 mt-2">' + t('lowStockShort', { n: remaining }) + '</p>' : '') + '</div></article>';
+        }).join('');
+
+        var rc = $('#resultCount');
+        if (rc) rc.textContent = t('resultRange', { n: total, a: (total ? start + 1 : 0), b: Math.min(start + state.perPage, total) });
+        renderPagination(totalPages, total);
+        updateFavCount();
+        updateURL();
+      }
+      function renderPagination(totalPages) {
+        var el = $('#pagination'); if (!el) return;
+        if (totalPages <= 1) { el.innerHTML = ''; return; }
+        var html = '';
+        function btn(p, label, disabled, active) {
+          return '<button data-page="' + p + '" ' + (disabled ? 'disabled' : '') + ' class="min-w-11 h-11 px-3 rounded-xl border text-sm ' + (active ? 'bg-heritage-blue text-white border-heritage-blue' : 'bg-white dark:bg-[#1A2530] border-heritage-border dark:border-gray-600 hover:bg-heritage-blue/10') + (disabled ? ' opacity-40 cursor-not-allowed' : '') + '">' + label + '</button>';
+        }
+        html += btn(state.page - 1, t('prevPage'), state.page <= 1, false);
+        for (var i = 1; i <= totalPages; i++) {
+          if (i === 1 || i === totalPages || Math.abs(i - state.page) <= 1) html += btn(i, i, false, i === state.page);
+          else if (Math.abs(i - state.page) === 2) html += '<span class="px-2">…</span>';
+        }
+        html += btn(state.page + 1, t('nextPage'), state.page >= totalPages, false);
+        el.innerHTML = html;
+      }
+
+      function renderFeatured() {
+        var el = $('#featuredList'); if (!el) return;
+        var hot = DATA.filter(function (i) { return i.isHot; }).slice(0, 5);
+        el.innerHTML = hot.map(function (item) {
+          return '<a href="booking.html?id=' + item.id + '" class="snap-start shrink-0 w-64 bg-white dark:bg-[#1A2530] rounded-2xl border border-heritage-border dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-lg transition">' +
+            '<div class="aspect-[16/10] bg-heritage-border/40"><img src="' + item.image + '" alt="' + escapeHTML(item.title) + '" loading="lazy" onerror="imgFallback(this)" class="w-full h-full object-cover"></div>' +
+            '<div class="p-3"><h3 class="font-bold text-sm">' + escapeHTML(item.title) + '</h3><p class="text-xs text-heritage-terracotta mt-1">' + formatMOP(item.price) + ' ' + t('fromPrice') + '</p></div></a>';
+        }).join('');
+      }
+
+      var params = new URLSearchParams(location.search);
+      state.q = params.get('q') || '';
+      state.categories = (params.get('cat') || '').split(',').filter(Boolean);
+      state.sort = params.get('sort') || 'recommend';
+      state.page = parseInt(params.get('page') || '1', 10) || 1;
+      state.favs = getFavs();
+      try { state.view = localStorage.getItem('mh_view') || 'grid'; } catch (e) { }
+      var searchInput = $('#searchInput'); if (searchInput) searchInput.value = state.q;
+      var sortSelect = $('#sortSelect'); if (sortSelect) sortSelect.value = state.sort;
+
+      renderChips($('#categoryChips'), CATS, state.categories, 'category');
+      renderChips($('#languageChips'), LANGS, state.languages, 'language');
+      renderChips($('#categoryChipsMobile'), CATS, state.categories, 'category');
+      renderChips($('#languageChipsMobile'), LANGS, state.languages, 'language');
+      if ($('#viewGrid') && state.view === 'grid') { $('#viewGrid').className = 'px-3 py-2 text-sm bg-heritage-blue text-white'; $('#viewList').className = 'px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700'; }
+      if ($('#viewList') && state.view === 'list') { $('#viewList').className = 'px-3 py-2 text-sm bg-heritage-blue text-white'; $('#viewGrid').className = 'px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700'; }
+
+      if (searchInput) searchInput.addEventListener('input', debounce(function (e) { state.q = e.target.value; state.page = 1; render(); }, 200));
+      $$('.hot-key').forEach(function (b) { b.addEventListener('click', function () { if (searchInput) { searchInput.value = this.dataset.q; state.q = this.dataset.q; state.page = 1; render(); } }); });
+      if (sortSelect) sortSelect.addEventListener('change', function (e) { state.sort = e.target.value; state.page = 1; render(); });
+      $('#viewGrid') && $('#viewGrid').addEventListener('click', function () { state.view = 'grid'; try { localStorage.setItem('mh_view', 'grid'); } catch (e) { } render(); this.className = 'px-3 py-2 text-sm bg-heritage-blue text-white'; $('#viewList').className = 'px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700'; });
+      $('#viewList') && $('#viewList').addEventListener('click', function () { state.view = 'list'; try { localStorage.setItem('mh_view', 'list'); } catch (e) { } render(); this.className = 'px-3 py-2 text-sm bg-heritage-blue text-white'; $('#viewGrid').className = 'px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700'; });
+      $('#favTab') && $('#favTab').addEventListener('click', function () { state.onlyFav = !state.onlyFav; state.page = 1; this.classList.toggle('bg-heritage-gold/20', state.onlyFav); render(); });
+      $('#favNavBtn') && $('#favNavBtn').addEventListener('click', function () { state.onlyFav = true; state.page = 1; $('#favTab') && $('#favTab').classList.add('bg-heritage-gold/20'); render(); });
+      $('#favNavBtnMobile') && $('#favNavBtnMobile').addEventListener('click', function () { state.onlyFav = true; state.page = 1; $('#favTab') && $('#favTab').classList.add('bg-heritage-gold/20'); render(); closeMobileMenu(); });
+      $('#clearFilters') && $('#clearFilters').addEventListener('click', clearAll);
+      $('#emptyClear') && $('#emptyClear').addEventListener('click', clearAll);
+
+      function clearAll() {
+        state.q = ''; state.categories = []; state.district = ''; state.price = ''; state.date = ''; state.languages = []; state.onlyFav = false; state.page = 1;
+        if (searchInput) searchInput.value = '';
+        if ($('#districtFilter')) $('#districtFilter').value = '';
+        if ($('#priceFilter')) $('#priceFilter').value = '';
+        if ($('#dateFilter')) $('#dateFilter').value = '';
+        if ($('#districtFilterMobile')) $('#districtFilterMobile').value = '';
+        if ($('#priceFilterMobile')) $('#priceFilterMobile').value = '';
+        if ($('#dateFilterMobile')) $('#dateFilterMobile').value = '';
+        if ($('#favTab')) $('#favTab').classList.remove('bg-heritage-gold/20');
+        renderChips($('#categoryChips'), CATS, [], 'category');
+        renderChips($('#languageChips'), LANGS, [], 'language');
+        renderChips($('#categoryChipsMobile'), CATS, [], 'category');
+        renderChips($('#languageChipsMobile'), LANGS, [], 'language');
+        render();
+        showToast(t('clearAllToast'));
+      }
+
+      document.addEventListener('click', function (e) {
+        var chip = e.target.closest('[data-chip-type]');
+        if (chip) {
+          var type = chip.dataset.chipType, val = chip.dataset.chipValue;
+          var arr = type === 'category' ? state.categories : state.languages;
+          var idx = arr.indexOf(val);
+          if (idx > -1) arr.splice(idx, 1); else arr.push(val);
+          renderChips($('#categoryChips'), CATS, state.categories, 'category');
+          renderChips($('#languageChips'), LANGS, state.languages, 'language');
+          renderChips($('#categoryChipsMobile'), CATS, state.categories, 'category');
+          renderChips($('#languageChipsMobile'), LANGS, state.languages, 'language');
+          if ($('#filterDrawer') && !$('#filterDrawer').classList.contains('hidden')) updateApplyBtn();
+          if (!chip.closest('#filterDrawer')) {
+            state.page = 1; render();
+          }
+          return;
+        }
+        var fav = e.target.closest('[data-fav]');
+        if (fav) {
+          var id = fav.dataset.fav;
+          if (state.favs.has(id)) { state.favs.delete(id); showToast(t('favRemoved')); }
+          else { state.favs.add(id); showToast(t('favAdded')); }
+          saveFavs(); render(); return;
+        }
+        var page = e.target.closest('[data-page]');
+        if (page && !page.disabled) { state.page = parseInt(page.dataset.page, 10); render(); var top = $('#main'); if (top) top.scrollIntoView({ behavior: 'smooth' }); }
+      });
+
+      $('#districtFilter') && $('#districtFilter').addEventListener('change', function (e) { state.district = e.target.value; state.page = 1; render(); });
+      $('#priceFilter') && $('#priceFilter').addEventListener('change', function (e) { state.price = e.target.value; state.page = 1; render(); });
+      $('#dateFilter') && $('#dateFilter').addEventListener('change', function (e) { state.date = e.target.value; state.page = 1; render(); });
+
+      // ============ 手機版篩選 Drawer ============
+      function syncMobileFilters() {
+        renderChips($('#categoryChipsMobile'), CATS, state.categories, 'category');
+        renderChips($('#languageChipsMobile'), LANGS, state.languages, 'language');
+        if ($('#districtFilterMobile')) $('#districtFilterMobile').value = state.district;
+        if ($('#priceFilterMobile')) $('#priceFilterMobile').value = state.price;
+        if ($('#dateFilterMobile')) $('#dateFilterMobile').value = state.date;
+        updateApplyBtn();
+      }
+      function updateApplyBtn() {
+        var btn = $('#mobileApplyFilters');
+        if (!btn) return;
+        var count = state.categories.length + state.languages.length + (state.district ? 1 : 0) + (state.price ? 1 : 0) + (state.date ? 1 : 0);
+        btn.textContent = count ? t('applyWith', { n: count }) : t('apply');
+      }
+      function openFilterDrawer() {
+        syncMobileFilters();
+        var d = $('#filterDrawer'); if (d) d.classList.remove('hidden');
+      }
+      function closeFilterDrawer() { var d = $('#filterDrawer'); if (d) d.classList.add('hidden'); }
+
+      $('#filterBtn') && $('#filterBtn').addEventListener('click', openFilterDrawer);
+      document.addEventListener('click', function (e) { if (e.target.closest('[data-close-filter]')) closeFilterDrawer(); });
+
+      ['districtFilterMobile', 'priceFilterMobile', 'dateFilterMobile'].forEach(function (id) {
+        var el = $('#' + id); if (!el) return;
+        el.addEventListener('change', function () {
+          if (id === 'districtFilterMobile') state.district = this.value;
+          if (id === 'priceFilterMobile') state.price = this.value;
+          if (id === 'dateFilterMobile') state.date = this.value;
+          state.page = 1;
+          updateApplyBtn();
+        });
+      });
+
+      $('#mobileApplyFilters') && $('#mobileApplyFilters').addEventListener('click', function () {
+        if ($('#districtFilter')) $('#districtFilter').value = state.district;
+        if ($('#priceFilter')) $('#priceFilter').value = state.price;
+        if ($('#dateFilter')) $('#dateFilter').value = state.date;
+        render();
+        closeFilterDrawer();
+        var top = $('#main'); if (top) top.scrollIntoView({ behavior: 'smooth' });
+      });
+
+      $('#mobileClearFilters') && $('#mobileClearFilters').addEventListener('click', function () {
+        clearAll();
+        syncMobileFilters();
+      });
+
+      function closeMobileMenu() { var m = $('#mobileMenu'); if (m) m.classList.add('hidden'); }
+      $('#menuBtn') && $('#menuBtn').addEventListener('click', function () { $('#mobileMenu').classList.remove('hidden'); });
+      document.addEventListener('click', function (e) { if (e.target.closest('[data-close-menu]')) closeMobileMenu(); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeMobileMenu(); closeFilterDrawer(); } });
+
+      window.addEventListener('scroll', function () { var b = $('#backTop'); if (b) b.classList.toggle('hidden', window.scrollY < 400); });
+      $('#backTop') && $('#backTop').addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+      // ★★★ 修復 2：語言變更時用 getSpots() 即時取得資料，加 try/catch 隔離錯誤 ★★★
+      window.addEventListener('mh-lang-change', function () {
+        try {
+          DATA = window.getSpots ? window.getSpots() : (window.HERITAGE_SPOTS || []);
+          MH_I18N.applyToDOM();
+          renderChips($('#categoryChips'), CATS, state.categories, 'category');
+          renderChips($('#languageChips'), LANGS, state.languages, 'language');
+          renderChips($('#categoryChipsMobile'), CATS, state.categories, 'category');
+          renderChips($('#languageChipsMobile'), LANGS, state.languages, 'language');
+          updateApplyBtn();
+          render();
+          renderFeatured();
+        } catch (err) {
+          console.error('[index] lang change error:', err);
+        }
+        updateFavCount(); 
+      });
+
+      renderFeatured();
+      render();
+      updateApplyBtn();
+    })();
+  </script>
+</body>
+
+</html>
